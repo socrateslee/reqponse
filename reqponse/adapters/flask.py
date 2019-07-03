@@ -12,6 +12,7 @@ def get_response(resp_dict=None, **kwargs):
             **kwargs)
     resp = flask.Response(resp_dict['body'])
     resp.status_code = resp_dict['status_code']
-    for k, v in resp_dict['headers'].items():
-        resp.headers[k] = v
+    for (k, v) in wsgi_environ\
+                  .iter_response_headers(resp_dict['headers']):
+        resp.headers.add_header(k, v)
     return resp

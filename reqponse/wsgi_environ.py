@@ -1,5 +1,6 @@
 import copy
 import gzip
+import re
 from wsgiref.util import is_hop_by_hop
 import six
 import requests
@@ -9,6 +10,20 @@ DEFAULT_PARAMS = {
     "timeout": 5,
     "allow_redirects": True
 }
+
+
+def iter_response_headers(headers_dict):
+    '''
+    Iterate the headers dict from  requests' response,
+    split the combined Set-Cookie into multiple set-cookie
+    header lines.
+    '''
+    for k, v in headers_dict.items():
+        if k == 'Set-Cookie':
+            for content in re.split(r",(?![^=]+;)", v):
+                yield ("Set-Cookie", content.strip())
+        else:
+            yield (k, v)
 
 
 def environ2dict(environ, **kwargs):
